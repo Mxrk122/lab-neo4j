@@ -256,5 +256,97 @@ if __name__ == "__main__":
             "timestamp" : 4564324123
         }
     app.create_relationship("user", node1, "rated", rel_props, "movie", node2)
-        
+
+
+    # Parte D
+    person_actor = {
+        "name": "'johnny depp'",
+        "tmdbld": 15,
+        "born": "datetime('2023-04-14T15:30:00Z')",
+        "died": "datetime('2023-04-14T15:30:00Z')",
+        "bornIn": "'US'",
+        "url": "'johnnydepp.com'",
+        "imdbld": 14,
+        "bio": "'good actor'",
+        "psoter": "'iron man'"
+    }
+
+    person_director = {
+        "name": "'Quentin Tarantino'",
+        "tmdbld": 15,
+        "born": "datetime('2023-04-14T15:30:00Z')",
+        "died": "datetime('2023-04-14T15:30:00Z')",
+        "bornIn": "'US'",
+        "url": "'johnnydepp.com'",
+        "imdbld": 14,
+        "bio": "'good actor'",
+        "psoter": "'iron man'"
+    }
+
+    user = {
+        "name": "'Marky'",
+        "userId": 10
+    }
+
+    movie = {
+        "title": "'Sponge Bob Squarepants'",
+        "tmdbld": 15,
+        "released": "datetime('2023-04-14T15:30:00Z')",
+        "imdbRating": 10,
+        "movieId": 10,
+        "year": 1998,
+        "imdbld": 10,
+        "runtime": 5,
+        "countries": ["US", "UK", "China"],
+        "imdbVotes": 10,
+        "url": "'spongebob.com'",
+        "revenue": 14,
+        "plot": "'bob esponjaa necesita encontrar la corona de neptuno para rescatar a don cangrejo'",
+        "poster": "'neptuno'",
+        "budget": 100,
+        "languages": ["spanish", "english"]
+    }
+
+    genre = {
+        "name": "'cartoon'"
+    }
+
+    app.create_node("person_actor", person_actor)
+    app.create_node("person_director", person_director)
+    app.create_node("user", user)
+    app.create_node("movie", movie)
+    app.create_node("genre", genre)
+
+    node1 = ["name", "'Marky'"]
+    node2 = ["title", "'Sponge Bob Squarepants'"]
+    rel_props = {
+            "rating" : 5,
+            "timestamp" : 4564322323
+    }
+    
+    app.create_relationship("user", node1, "rated", rel_props, "movie", node2)
+
+    node1 = ["name", "'Quentin Tarantino'"]
+    node2 = ["title", "'Sponge Bob Squarepants'"]
+    rel_props = {
+            "role": "'director'"
+    }
+    
+    app.create_relationship("person_director", node1, "directed", rel_props, "movie", node2)
+
+    node1 = ["name", "'johnny depp'"]
+    node2 = ["title", "'Sponge Bob Squarepants'"]
+    rel_props = {
+            "role": "'character'"
+    }
+    
+    app.create_relationship("person_actor", node1, "acted_in", rel_props, "movie", node2)
+
+    node1 = ["title", "'Sponge Bob Squarepants'"]
+    node2 = ["name", "'cartoon'"]
+
+    rel_props = {}
+    
+    app.create_relationship("movie", node1, "in_genre", rel_props, "genre", node2)
+
     app.close()
