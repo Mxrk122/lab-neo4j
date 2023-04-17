@@ -18,6 +18,56 @@ class App:
                 self._create_and_return_friendship, person1_name, person2_name)
             for row in result:
                 print("Created friendship between: {p1}, {p2}".format(p1=row['p1'], p2=row['p2']))
+    
+    def find_person(self, person_name):
+        with self.driver.session(database="neo4j") as session:
+            result = session.execute_read(self._find_and_return_person, person_name)
+            for row in result:
+                print("Found person: {row}".format(row=row))
+
+    @staticmethod
+    def _find_and_return_person(tx, person_name):
+        print(person_name)
+        query = (
+            "MATCH (p:user) "
+            "WHERE p.name = $person_name "
+            "RETURN p.name AS name"
+        )
+        print(query)
+        result = tx.run(query, person_name=person_name)
+        return [row["name"] for row in result]
+    
+    def find_Movie(self, movie_name):
+        with self.driver.session(database="neo4j") as session:
+            result = session.execute_read(self._find_and_return_Movie, movie_name)
+            for row in result:
+                print("Found movie: {row}".format(row=row))
+
+    @staticmethod
+    def _find_and_return_Movie(tx, movie_name):
+        query = (
+            "MATCH (p:movie) "
+            "WHERE p.title = $movie_name "
+            "RETURN p.title AS title"
+        )
+        result = tx.run(query, movie_name=movie_name)
+        return [row["name"] for row in result]
+    
+    def find_user_movie_rating(self, user_name, movie_name):
+        with self.driver.session(database="neo4j") as session:
+            result = session.execute_read(self._find_user_movie_rating, user_name, movie_name)
+            for row in result:
+                print("users with movie rating: {row}".format(row=row))
+
+    @staticmethod
+    def _find_user_movie_rating(tx, user_name, movie_name):
+        query = (
+            "MATCH (user:User)-[r:rated]->(movie:Movie) "
+            "WHERE user.name =$user_name AND movie.title = $movie_name "
+            "RETURN user.name, movie.title, r.rating "
+        )
+        result = tx.run(query, user_name=user_name, movie_name=movie_name)
+        return [row["name"] for row in result]
 
     @staticmethod
     def _create_and_return_friendship(tx, person1_name, person2_name):
@@ -38,22 +88,6 @@ class App:
             logging.error("{query} raised an error: \n {exception}".format(
                 query=query, exception=exception))
             raise
-
-    def find_person(self, person_name):
-        with self.driver.session(database="neo4j") as session:
-            result = session.execute_read(self._find_and_return_person, person_name)
-            for row in result:
-                print("Found person: {row}".format(row=row))
-
-    @staticmethod
-    def _find_and_return_person(tx, person_name):
-        query = (
-            "MATCH (p:Person) "
-            "WHERE p.name = $person_name "
-            "RETURN p.name AS name"
-        )
-        result = tx.run(query, person_name=person_name)
-        return [row["name"] for row in result]
     
     # PArte A
     
@@ -257,6 +291,10 @@ if __name__ == "__main__":
         }
     app.create_relationship("user", node1, "rated", rel_props, "movie", node2)
 
+    # Parte C
+    print(app.find_person("'Dave'"))
+    print(app.find_Movie("'Pulp Fiction'"))
+    print(app.find_user_movie_rating("'Bob'","'The Dark Knight'"))
 
     # Parte D
     person_actor = {
