@@ -27,13 +27,9 @@ class App:
 
     @staticmethod
     def _find_and_return_person(tx, person_name):
-        print(person_name)
         query = (
-            "MATCH (p:user) "
-            "WHERE p.name = $person_name "
-            "RETURN p.name AS name"
+            f"""MATCH (p:user) WHERE p.name = {person_name} RETURN p.name AS name"""
         )
-        print(query)
         result = tx.run(query, person_name=person_name)
         return [row["name"] for row in result]
     
@@ -46,28 +42,30 @@ class App:
     @staticmethod
     def _find_and_return_Movie(tx, movie_name):
         query = (
-            "MATCH (p:movie) "
-            "WHERE p.title = $movie_name "
-            "RETURN p.title AS title"
+            f"MATCH (p:movie) WHERE p.title = {movie_name} RETURN p.title AS title"
         )
+        print(query)
         result = tx.run(query, movie_name=movie_name)
-        return [row["name"] for row in result]
+        return [row["title"] for row in result]
     
     def find_user_movie_rating(self, user_name, movie_name):
         with self.driver.session(database="neo4j") as session:
             result = session.execute_read(self._find_user_movie_rating, user_name, movie_name)
             for row in result:
-                print("users with movie rating: {row}".format(row=row))
+                print(f"user: {row[0]}, rating: {row[1]}, movie: {row[2]}")
 
     @staticmethod
     def _find_user_movie_rating(tx, user_name, movie_name):
         query = (
-            "MATCH (user:User)-[r:rated]->(movie:Movie) "
-            "WHERE user.name =$user_name AND movie.title = $movie_name "
-            "RETURN user.name, movie.title, r.rating "
+            f"""MATCH (user:user)-[r:rated]->(movie:movie) 
+            WHERE user.name ={user_name} AND movie.title = {movie_name} 
+            RETURN user.name, movie.title, r.rating """
         )
         result = tx.run(query, user_name=user_name, movie_name=movie_name)
-        return [row["name"] for row in result]
+        sendrow =[]
+        for row in result:
+            sendrow.append([row["user.name"], row["r.rating"], row["movie.title"]])
+        return sendrow
 
     @staticmethod
     def _create_and_return_friendship(tx, person1_name, person2_name):
@@ -292,9 +290,9 @@ if __name__ == "__main__":
     app.create_relationship("user", node1, "rated", rel_props, "movie", node2)
 
     # Parte C
-    print(app.find_person("'Dave'"))
-    print(app.find_Movie("'Pulp Fiction'"))
-    print(app.find_user_movie_rating("'Bob'","'The Dark Knight'"))
+    app.find_person("'Dave'")
+    app.find_Movie("'Pulp Fiction'")
+    app.find_user_movie_rating("'Bob'","'The Dark Knight'")
 
     # Parte D
     person_actor = {
